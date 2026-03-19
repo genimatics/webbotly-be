@@ -3,11 +3,8 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import { setupSwagger } from "./config/swagger";
-// import assetRoutes from './modules/asset/asset.routes';
-// import clientRoutes from "./modules/client/client.routes";
-// import siteRoutes from "./modules/site/site.routes";
 import userRoutes from "./modules/user/user.routes";
-// import documentsRoutes from "./modules/documents/document.routes";
+import crawlerRoutes from "./modules/crawler/crawler.routes";
 import dotenv from "dotenv";
 
 
@@ -29,7 +26,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 
 app.use("/api/users", userRoutes);
-// app.use("/api/clients", clientRoutes);
+app.use("/api/crawler", crawlerRoutes);
 // app.use("/api/sites", siteRoutes);
 // app.use("/api/documents", documentsRoutes);
 // app.use('/api/assets', assetRoutes);
