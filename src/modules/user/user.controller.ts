@@ -15,7 +15,7 @@ export const register = async (req: Request, res: Response) => {
   try {
 
     const result = await userService.registerUser(req.body);
-      res.cookie("accessToken", result.token, {
+    res.cookie("accessToken", result.token, {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "none",
@@ -23,7 +23,9 @@ export const register = async (req: Request, res: Response) => {
     });
     res.status(201).json({
       message: "User registered successfully",
-      user: result.user
+      user: result.user,
+      token: result.token
+
     });
   }
   catch (error: any) {
@@ -48,6 +50,7 @@ export const login = async (req: Request, res: Response) => {
     res.status(200).json({
       message: "Login successful",
       user: result.user,
+      token: result.token
     });
   }
   catch (error: any) {
