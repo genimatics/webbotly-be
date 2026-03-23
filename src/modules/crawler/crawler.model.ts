@@ -11,7 +11,7 @@ export interface IUserPages extends Document {
     lastUpdated: Date;
     createdAt: Date;
     updatedAt: Date;
-    isDeleted: boolean
+    isDeleted: boolean;
 }
 
 const CrawlerPageSchema = new Schema<IPage>(
