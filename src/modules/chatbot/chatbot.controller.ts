@@ -1,11 +1,9 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import UserPlan, { PlanName } from "../userPlan/userPlan.model";
-// import { fetchLeads } from "../leads/route";
-// import { fetchChats } from "../chat/route";
-const User = require("../../models/user");
-// import { fetchBookings } from "../bookings/gmeet";
+import User from '../user/user.model'
 import Chatbot from './chatbot.model'
+import * as ChatbotService from './chatbot.service'
 import ChatbotPersonality from '../chatbotPersonality/chatbotPersonality.model'
 import { is30DaysOld, LIMITS } from "../../constants";
 
@@ -29,25 +27,17 @@ export const createChatbot = async (req: RequestWithUser, res: Response) => {
             initialMessage,
         } = req.body;
 
+        const chatbot = await ChatbotService.CreateChatbot(new mongoose.Types.ObjectId(req.user.id), req.body)
+
         if (!name || !personalityId || !content || !initialMessage) {
             return res.status(400).json({
                 error: "Name, content, initialMessage and personalityId, are required",
             });
         }
 
-        const newChatbot = new Chatbot({
-            name,
-            userId: new mongoose.Types.ObjectId(req.user.id),
-            personalityId,
-            theme,
-            initialMessage,
-            content,
-        });
-
-        await newChatbot.save();
         res
             .status(201)
-            .json({ message: "Chatbot created successfully", chatbot: newChatbot });
+            .json({ message: "Chatbot created successfully", chatbot });
     } catch (error) {
         console.error("Error creating chatbot:", error);
         res
@@ -133,9 +123,10 @@ export const getChatbotById = async (req: Request, res: Response) => {
 
         const userId = chatbot.userId;
         const payment = await UserPlan.findOne({ userId });
-        const user = await User.findOne({ _id: userId });
+        const user = await User.findOne({ _id: userId })
 
-        const isTrialExpired = is30DaysOld(user?.createdAt);
+        if (!user) return;
+        const isTrialExpired = is30DaysOld((user.createdAt).toString());
 
         const isFreePlan = !payment || payment?.planName === PlanName.FREE;
         // const leads = await fetchLeads(userId, true);
