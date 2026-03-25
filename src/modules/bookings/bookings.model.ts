@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Schema, Document, model } from "mongoose";
 
 export interface IBooking extends Document {
   userId: string;
@@ -27,4 +27,4 @@ const BookingSchema: Schema = new Schema(
 );
 
 
-module.exports = mongoose.model("Booking", BookingSchema);
+export default model<IBooking>("Booking", BookingSchema);

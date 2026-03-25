@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, model } from "mongoose";
 
 export interface IChatMessage extends Document {
   chatSessionId: mongoose.Types.ObjectId;
@@ -33,4 +33,4 @@ const ChatMessageSchema: Schema<IChatMessage> = new Schema(
   { timestamps: true } // Automatically manages createdAt and updatedAt
 );
 
-module.exports = mongoose.model("ChatMessage", ChatMessageSchema);
+export default model<IChatMessage>("ChatMessage", ChatMessageSchema);

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, model } from "mongoose";
 
 export interface ILead extends Document {
   chatSessionId: mongoose.Types.ObjectId;
@@ -47,4 +47,4 @@ const LeadSchema: Schema<ILead> = new Schema(
   },
   { timestamps: true } // Automatically manages createdAt and updatedAt
 );
-module.exports = mongoose.model("Lead", LeadSchema);
+export default model<ILead>("Lead", LeadSchema);
