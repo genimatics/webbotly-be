@@ -14,6 +14,7 @@ function normalizeUrl(url: string) {
 
 export const crawlWebsite = async (
   startUrl: string,
+  mode: string,
   onBatch: (urls: string[]) => void
 ) => {
 
@@ -75,6 +76,9 @@ export const crawlWebsite = async (
             if (parsed.hostname !== baseDomain) return;
 
             const normalized = normalizeUrl(parsed.href);
+
+            if (mode === "single") return; // single page
+            if (mode === "nested" && !normalized.startsWith(normalizeUrl(startUrl))) return; 
 
             if (!visited.has(normalized) && !queued.has(normalized)) {
               queued.add(normalized);

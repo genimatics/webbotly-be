@@ -1,17 +1,17 @@
 import express from "express";
-import { authenticate } from "../../middleware"
+import { authenticate as auth } from "../../middleware";
 import * as chatbotController from "./chatbot.controller"
 
 const router = express.Router();
 
 // @ts-ignore
-router.post("/create", authenticate, chatbotController.createChatbot);
+router.post("/create", auth, chatbotController.createChatbot);
 
 // @ts-ignore
-router.put("/edit/:chatbotId", authenticate, chatbotController.editChatbot);
+router.put("/edit/:chatbotId", auth, chatbotController.editChatbot);
 
 // @ts-ignore
-router.get("/all", authenticate, chatbotController.getAllChatbots);
+router.get("/all", auth, chatbotController.getAllChatbots);
 
 // @ts-ignore
 router.get("/:chatbotId", chatbotController.getChatbotById);
