@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "concurrently \"ts-node-dev --respawn --transpile-only src/server.ts\" \"ts-node-dev --respawn --transpile-only src/workers/ingest.workers.ts\"",
     "build": "tsc",
     "start": "node dist/server.js"
   },
@@ -16,7 +16,9 @@
     "aws-sdk": "^2.1693.0",
     "axios": "^1.13.6",
     "bcryptjs": "^3.0.3",
+    "bullmq": "^5.73.1",
     "cheerio": "^1.2.0",
+    "concurrently": "^9.2.1",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",

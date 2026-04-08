@@ -12,6 +12,8 @@ function normalizeUrl(url: string) {
     return u.href.replace(/\/$/, "");
 }
 
+
+
 export const crawlWebsite = async (
   startUrl: string,
   onBatch: (urls: string[]) => void

@@ -6,6 +6,7 @@ import Chatbot from './chatbot.model'
 import * as ChatbotService from './chatbot.service'
 import ChatbotPersonality from '../chatbotPersonality/chatbotPersonality.model'
 import { is30DaysOld, LIMITS } from "../../constants";
+import { ingestQueue } from "../../queues/ingest.queues";
 
 
 // Define a custom Request type to include user
@@ -34,6 +35,10 @@ export const createChatbot = async (req: RequestWithUser, res: Response) => {
             });
         }
 
+        await ingestQueue.add("ingest-job", {
+            chatbotId: chatbot._id
+        });
+
         res
             .status(201)
             .json({ message: "Chatbot created successfully", chatbot });
@@ -56,7 +61,6 @@ export const editChatbot = async (req: RequestWithUser, res: Response) => {
             return res.status(404).json({ error: "Chatbot Id is required" });
         }
 
-        console.log({ content: updates.content, theme: updates.theme, });
 
 
         const chatbot = await Chatbot.findOneAndUpdate(

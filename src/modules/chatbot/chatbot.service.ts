@@ -29,5 +29,5 @@ export const CreateChatbot = async (userId: Types.ObjectId, data: iCreateChatbot
         content,
     });
 
-    await newChatbot.save();
+    return await newChatbot.save();
 }

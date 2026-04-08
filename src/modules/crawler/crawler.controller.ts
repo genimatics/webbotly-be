@@ -3,6 +3,9 @@ import Crawler from "./crawler.model";
 import { AuthRequest } from "../../middleware";
 import * as crawlerService from "./crawler.service"
 
+
+
+
 export const crawlWebsite = async (req: AuthRequest, res: Response) => {
     try {
         const url = req.query.url as string;
