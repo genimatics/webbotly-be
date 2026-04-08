@@ -22,7 +22,6 @@ export const createChatbot = async (req: RequestWithUser, res: Response) => {
         const {
             name = "chatbot",
             personalityId,
-            theme,
             content,
             initialMessage,
         } = req.body;
@@ -52,9 +51,13 @@ export const editChatbot = async (req: RequestWithUser, res: Response) => {
         const { chatbotId } = req.params;
         const updates = req.body;
 
+
         if (!chatbotId) {
             return res.status(404).json({ error: "Chatbot Id is required" });
         }
+
+        console.log({ content: updates.content, theme: updates.theme, });
+
 
         const chatbot = await Chatbot.findOneAndUpdate(
             { _id: chatbotId, isDeleted: false, active: true },
