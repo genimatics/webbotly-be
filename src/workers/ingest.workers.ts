@@ -32,8 +32,6 @@ export async function scrapePageContent(pageUrl: string) {
             maxRedirects: 0, // ❌ prevent redirect crawling
         });
 
-        console.log({ data });
-
         const $ = cheerio.load(data);
 
         // Remove unwanted elements
@@ -90,8 +88,6 @@ const worker = new Worker(
     "ingest-queue",
     async (job) => {
         const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-        console.log("Processing job:", job.id);
-
         try {
             await connectDB();
 
@@ -129,23 +125,12 @@ const worker = new Worker(
                 userId: chatbot.userId,
                 content: results
             })
-
-            console.log({ jobRes: response })
-
-            console.log("Done job:", job.id);
-
-
-
-
-
         }
         catch (err) {
             console.log({ err });
 
         }
 
-
-        console.log("Job done:", job.id);
     },
     {
         connection: {

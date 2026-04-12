@@ -121,7 +121,6 @@ router.post("/webhook", async (req, res) => {
                 status = "subscribed";
                 break;
             case EVENT_TYPE.PAYMENT_METHOD_SAVED:
-                console.log("Payment method saved");
                 break;
             case EVENT_TYPE.SUBSCRIPTION_TRIALING:
                 planKey = returnPlanTrialKey(priceId);
