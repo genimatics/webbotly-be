@@ -8,9 +8,9 @@ import webContentRoutes from "./modules/webContent/webContent.routes"
 import chatbotRoutes from "./modules/chatbot/chatbot.routes"
 import chatbotPersonalityRoutes from "./modules/chatbotPersonality/chatbotPersonality.routes"
 import chatbotMessageRoutes from "./modules/chatMessage/chatMessage.routes"
-import bookingRoutes from "./modules/bookings/booking.routes"
+// import bookingRoutes from "./modules/bookings/booking.routes"
 import crawlerRoutes from "./modules/crawler/crawler.routes";
-import paymentPlanRoutes from "./modules/paymentPlan/paymentPlan.routes"
+// import paymentPlanRoutes from "./modules/paymentPlan/paymentPlan.routes"
 import dotenv from "dotenv";
 
 
@@ -35,10 +35,10 @@ app.use("/api/users", userRoutes);
 app.use("/api/crawler", crawlerRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/content", webContentRoutes);
-app.use("/api/booking", bookingRoutes);
+// app.use("/api/booking", bookingRoutes);
 app.use("/api/chatbotPersonality", chatbotPersonalityRoutes);
 app.use("/api/chatbotMessage", chatbotMessageRoutes);
-app.use("/api/paymentPlan", paymentPlanRoutes);
+// app.use("/api/paymentPlan", paymentPlanRoutes);
 
 // app.use("/api/dashboard", dashboardRoute);
 

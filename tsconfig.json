@@ -3,23 +3,28 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-
     "rootDir": "./src",
     "outDir": "./dist",
-    
-
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-
     "sourceMap": true,
-
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-
     "isolatedModules": true,
     "moduleDetection": "force",
-
-    "types": ["node"]
-  }
+    "types": [
+      "node"
+    ]
+  },
+  // "include": [
+  //   "src/app.ts",
+  //   "src/server.ts",
+  // ], // ✅ CRITICAL
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/modules/bookings",
+    "src/modules/paymentPlan",
+  ] // ✅ CRITICAL
 }
