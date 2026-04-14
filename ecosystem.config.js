@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "api",
-      script: "dist/server.js",
+      script: "dist/bootstrap.js",
       instances: 1,
       exec_mode: "fork",
     },
