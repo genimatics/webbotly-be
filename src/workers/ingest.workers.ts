@@ -1,7 +1,8 @@
-import dotenv from "dotenv";
-dotenv.config();
+
 
 import { Worker } from "bullmq";
+import dotenv from "dotenv";
+
 import { connectDB } from "../config/db";
 import ChatbotModel from "../modules/chatbot/chatbot.model";
 import ChatbotContentModel from "../modules/chatbot/content.model";
@@ -87,6 +88,7 @@ export async function scrapePageContent(pageUrl: string) {
 const worker = new Worker(
     "ingest-queue",
     async (job) => {
+        dotenv.config();
         const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
         try {
             await connectDB();

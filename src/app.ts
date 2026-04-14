@@ -11,8 +11,10 @@ import chatbotMessageRoutes from "./modules/chatMessage/chatMessage.routes"
 import crawlerRoutes from "./modules/crawler/crawler.routes";
 import dotenv from "dotenv";
 
+dotenv.config();
 
 const app = express();
+
 
 
 app.use(
@@ -21,7 +23,6 @@ app.use(
     })
 );
 
-dotenv.config();
 setupSwagger(app);
 
 app.use(helmet());
