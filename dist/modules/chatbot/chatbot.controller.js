@@ -37,7 +37,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getChatbotById = exports.getAllChatbots = exports.editChatbot = exports.createChatbot = void 0;
-const mongoose_1 = __importDefault(require("mongoose"));
 const userPlan_model_1 = __importStar(require("../userPlan/userPlan.model"));
 const user_model_1 = __importDefault(require("../user/user.model"));
 const chatbot_model_1 = __importDefault(require("./chatbot.model"));
@@ -51,7 +50,7 @@ const createChatbot = async (req, res) => {
         if (!req.user)
             return res.status(401).json({ error: "Authentication required" });
         const { name = "chatbot", personalityId, content, initialMessage, } = req.body;
-        const chatbot = await ChatbotService.CreateChatbot(new mongoose_1.default.Types.ObjectId(req.user.id), req.body);
+        const chatbot = await ChatbotService.CreateChatbot(req.user.id, req.body);
         if (!name || !personalityId || !content || !initialMessage) {
             return res.status(400).json({
                 error: "Name, content, initialMessage and personalityId, are required",
@@ -139,7 +138,7 @@ const getChatbotById = async (req, res) => {
         const payment = await userPlan_model_1.default.findOne({ userId });
         const user = await user_model_1.default.findOne({ _id: userId });
         if (!user)
-            return;
+            return res.status(404).json({ error: "User not found or inactive" });
         const isTrialExpired = (0, constants_1.is30DaysOld)((user.createdAt).toString());
         const isFreePlan = !payment || payment?.planName === userPlan_model_1.PlanName.FREE;
         // const leads = await fetchLeads(userId, true);

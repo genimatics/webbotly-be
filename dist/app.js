@@ -13,14 +13,11 @@ const webContent_routes_1 = __importDefault(require("./modules/webContent/webCon
 const chatbot_routes_1 = __importDefault(require("./modules/chatbot/chatbot.routes"));
 const chatbotPersonality_routes_1 = __importDefault(require("./modules/chatbotPersonality/chatbotPersonality.routes"));
 const chatMessage_routes_1 = __importDefault(require("./modules/chatMessage/chatMessage.routes"));
-// import bookingRoutes from "./modules/bookings/booking.routes"
 const crawler_routes_1 = __importDefault(require("./modules/crawler/crawler.routes"));
-// import paymentPlanRoutes from "./modules/paymentPlan/paymentPlan.routes"
 const dotenv_1 = __importDefault(require("dotenv"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
-    origin: ['http://localhost:3000', 'https://dome-fe.vercel.app'],
-    credentials: true,
+    origin: '*',
 }));
 dotenv_1.default.config();
 (0, swagger_1.setupSwagger)(app);
@@ -31,10 +28,7 @@ app.use("/api/users", user_routes_1.default);
 app.use("/api/crawler", crawler_routes_1.default);
 app.use("/api/chatbot", chatbot_routes_1.default);
 app.use("/api/content", webContent_routes_1.default);
-// app.use("/api/booking", bookingRoutes);
 app.use("/api/chatbotPersonality", chatbotPersonality_routes_1.default);
 app.use("/api/chatbotMessage", chatMessage_routes_1.default);
-// app.use("/api/paymentPlan", paymentPlanRoutes);
-// app.use("/api/dashboard", dashboardRoute);
 exports.default = app;
 //# sourceMappingURL=app.js.map

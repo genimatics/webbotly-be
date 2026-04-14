@@ -21,8 +21,10 @@ router.get("/history", authenticate, async (req: Request, res: Response) => {
   }
 });
 
-router.post("/history", authenticate, async (req: Request, res: Response) => {
-  const { sessionId } = req.body;
+router.post("/history", async (req: Request, res: Response) => {
+  const { sessionId } = req.body || {};
+  console.log({ sessionId, });
+
 
   const messages = await ChatMessage.find({ chatSessionId: sessionId });
 

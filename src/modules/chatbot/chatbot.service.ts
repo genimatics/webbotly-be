@@ -10,7 +10,7 @@ interface iCreateChatbotPayload {
     initialMessage: string
 }
 
-export const CreateChatbot = async (userId: Types.ObjectId, data: iCreateChatbotPayload) => {
+export const CreateChatbot = async (userId: string, data: iCreateChatbotPayload) => {
     const {
         name = "chatbot",
         personalityId,

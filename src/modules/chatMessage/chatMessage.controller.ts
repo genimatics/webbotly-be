@@ -343,6 +343,12 @@ export const handleChat = async (req: ChatRequest, res: Response) => {
     const { chatbot, personality, userId } = await getChatbot(chatbotId);
     const chatbotContent = await ContentModel.findOne({ chatbotId })
 
+
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
     if (!userId)
       return res.status(400).json({ error: "User Id is required" });
 
@@ -358,6 +364,10 @@ export const handleChat = async (req: ChatRequest, res: Response) => {
     if (!session)
       return res.status(500).json({ error: "Failed to retrieve session" });
 
+    res.write(`data: ${JSON.stringify({
+      type: "meta",
+      sessionId: session._id.toString()
+    })}\n\n`);
 
     const recentMessages = await ChatMessage.find({
       chatSessionId: session._id,
@@ -368,8 +378,8 @@ export const handleChat = async (req: ChatRequest, res: Response) => {
     await storeUserMessage((session._id).toString(), message, (userId).toString(), dev);
 
 
-    res.setHeader("Content-Type", "text/plain");
-    res.setHeader("Transfer-Encoding", "chunked");
+
+
     const stream = client.chat.completions.runTools({
       model: 'gpt-4o-mini',
       messages: [{ content: GENI_INITIALIZATION_PROMPT(JSON.stringify(chatbotContent?.content || {}), personality._id.toString(), session._id.toString(), chatbotId, userId.toString()), role: "assistant" },
@@ -381,13 +391,25 @@ export const handleChat = async (req: ChatRequest, res: Response) => {
     })
     let fullResponse = "";
     for await (const chunk of stream) {
-      const content = chunk.choices?.[0]?.delta?.content;
+      let content = chunk.choices?.[0]?.delta?.content;
+      console.log({ content });
+
 
       if (content) {
+        try {
+          const parsed = JSON.parse(content);
+          if (parsed.message) {
+            content = parsed.message;
+          }
+        } catch {
+          // ignore
+        }
         fullResponse += content;
 
-        // send chunk to client
-        res.write(content);
+        res.write(`data: ${JSON.stringify({
+          type: "chunk",
+          content
+        })}\n\n`);
       }
     }
     await storeBotMessage(
@@ -396,6 +418,10 @@ export const handleChat = async (req: ChatRequest, res: Response) => {
       userId.toString(),
       dev
     );
+
+    res.write(`data: ${JSON.stringify({
+      type: "done"
+    })}\n\n`);
 
     res.end();
   } catch (err) { }

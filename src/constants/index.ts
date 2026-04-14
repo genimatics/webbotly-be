@@ -186,7 +186,7 @@ If irrelevant topics come up, politely guide the user back.
 
 Every message must respond in **one of the following three formats** based on the context:
 
-- for all other responses: { "message": "Your reply goes here." }
+- for all other responses: <message> as a string
 
 `;
 };

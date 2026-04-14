@@ -21,8 +21,9 @@ router.get("/history", middleware_1.authenticate, async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
-router.post("/history", middleware_1.authenticate, async (req, res) => {
-    const { sessionId } = req.body;
+router.post("/history", async (req, res) => {
+    const { sessionId } = req.body || {};
+    console.log({ sessionId, });
     const messages = await chatMessage_model_1.default.find({ chatSessionId: sessionId });
     res.status(200).json(messages);
 });

@@ -27,7 +27,7 @@ export const createChatbot = async (req: RequestWithUser, res: Response) => {
             initialMessage,
         } = req.body;
 
-        const chatbot = await ChatbotService.CreateChatbot(new mongoose.Types.ObjectId(req.user.id), req.body)
+        const chatbot = await ChatbotService.CreateChatbot(req.user.id, req.body)
 
         if (!name || !personalityId || !content || !initialMessage) {
             return res.status(400).json({
@@ -132,7 +132,7 @@ export const getChatbotById = async (req: Request, res: Response) => {
         const payment = await UserPlan.findOne({ userId });
         const user = await User.findOne({ _id: userId })
 
-        if (!user) return;
+        if (!user) return res.status(404).json({ error: "User not found or inactive" });
         const isTrialExpired = is30DaysOld((user.createdAt).toString());
 
         const isFreePlan = !payment || payment?.planName === PlanName.FREE;

@@ -13,7 +13,7 @@ const leads_model_1 = __importDefault(require("../leads/leads.model"));
 const chatMessage_model_1 = __importDefault(require("./chatMessage.model"));
 const chatSession_model_1 = __importDefault(require("../chatSession/chatSession.model"));
 const bookings_model_1 = __importDefault(require("../bookings/bookings.model"));
-const user_model_1 = __importDefault(require("../user/user.model"));
+const content_model_1 = __importDefault(require("../chatbot/content.model"));
 const { google } = require("googleapis");
 const client = new openai_1.default({ apiKey: process.env.OPENAI_API_KEY });
 const storeLead = async (args) => {
@@ -150,6 +150,127 @@ async function createGoogleMeetEvent({ summary, description, startTime, userId, 
     }
 }
 // Controller function to handle chat messages
+// export const handleChat = async (req: ChatRequest, res: Response) => {
+//   try {
+//     // @ts-ignore
+//     const { message, sessionId, chatbotId, dev } = req.body;
+//     if (!message) return res.status(400).json({ error: "Message is required" });
+//     if (!chatbotId)
+//       return res.status(400).json({ error: "Chatbot Id is required" });
+//     let additionalPrompt = "";
+//     // Get chatbot and personality
+//     const { chatbot, personality, userId } = await getChatbot(chatbotId);
+//     const chatbotContent = await ContentModel.findOne({ chatbotId })
+//     if (!userId)
+//       return res.status(400).json({ error: "User Id is required" });
+//     if (!chatbotContent)
+//       return res.status(400).json({ error: "no context" });
+//     const user = await User.findById(userId);
+//     // const hasMeetingEnabled = await MeetCredentials.findOne({
+//     //   userId,
+//     // });
+//     // if (hasMeetingEnabled) {
+//     //   additionalPrompt = getMeetingPrompt(user, (userId).toString());
+//     // }
+//     if (!chatbot || !personality)
+//       return res.status(400).json({ error: "Invalid chatbot or personality" });
+//     // Get or create session
+//     const session = await getChatSession(sessionId, chatbotId, dev, (userId).toString());
+//     if (!session)
+//       return res.status(500).json({ error: "Failed to retrieve session" });
+//     // Store user's message
+//     await storeUserMessage((session._id).toString(), message, (userId).toString(), dev);
+//     // Fetch last 10 messages
+//     const recentMessages = await ChatMessage.find({
+//       chatSessionId: session._id,
+//     })
+//       .sort("created_at")
+//       .limit(10);
+//     // Generate chatbot response
+//     const chatbotReply = await getChatbotResponse(
+//       chatbot,
+//       personality,
+//       (session._id).toString(),
+//       message,
+//       recentMessages || [],
+//       (userId).toString(),
+//       chatbotContent.content || {},
+//       `
+//       // 
+//        Response Format:
+//         json format:
+//           { 
+//             "message": "Your reply goes here.", 
+//           }
+//       `,
+//       dev
+//     );
+//     // Store chatbot's response
+//     await storeBotMessage((session._id).toString(), chatbotReply || "", (userId).toString(), dev);
+//     // Respond with chatbot reply and messages
+//     res.json({
+//       sessionId: session._id,
+//       dev,
+//       response: chatbotReply,
+//       messages:
+//         recentMessages?.map((msg: { role: string; content: string }) => ({
+//           role: msg.role,
+//           content: msg.content,
+//         })) || [],
+//     });
+//   } catch (error) {
+//     console.error("Error handling chat:", error);
+//     res
+//       .status(500)
+//       .json({ error: "An error occurred while processing the request" });
+//   }
+// };
+const tools = [
+    {
+        type: "function",
+        function: {
+            parse: JSON.parse,
+            function: storeLead,
+            description: "Run this tool, when user provides his name or email or number",
+            name: "storeLead",
+            parameters: {
+                type: "object",
+                required: ["sessionId", "chatbotId", "email", "phone", "name", "dev"],
+                properties: {
+                    sessionId: {
+                        type: "string",
+                        description: "The sessionId provided in the system prompt",
+                    },
+                    dev: {
+                        type: "boolean",
+                        description: "The dev flag provided in the system prompt",
+                    },
+                    chatbotId: {
+                        type: "string",
+                        description: "The chatbotId provided in the system prompt",
+                    },
+                    email: {
+                        type: "string",
+                        description: "Email address provided by the user or N/A if not given",
+                    },
+                    phone: {
+                        type: "string",
+                        description: "Phone number provided by the user or N/A if not given",
+                    },
+                    userId: {
+                        type: "string",
+                        description: "User id of the user",
+                    },
+                    name: {
+                        type: "string",
+                        description: "Name of the user, user can provide this, if not, then try email to get the name and if both not then N/A",
+                    },
+                },
+                additionalProperties: false,
+            },
+        },
+    },
+];
 const handleChat = async (req, res) => {
     try {
         // @ts-ignore
@@ -158,60 +279,69 @@ const handleChat = async (req, res) => {
             return res.status(400).json({ error: "Message is required" });
         if (!chatbotId)
             return res.status(400).json({ error: "Chatbot Id is required" });
-        let additionalPrompt = "";
-        // Get chatbot and personality
         const { chatbot, personality, userId } = await (0, constants_1.getChatbot)(chatbotId);
+        const chatbotContent = await content_model_1.default.findOne({ chatbotId });
+        res.setHeader("Content-Type", "text/event-stream");
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Connection", "keep-alive");
         if (!userId)
             return res.status(400).json({ error: "User Id is required" });
-        const user = await user_model_1.default.findById(userId);
-        const hasMeetingEnabled = await meetCredentials_model_1.default.findOne({
-            userId,
-        });
-        if (hasMeetingEnabled) {
-            additionalPrompt = (0, constants_1.getMeetingPrompt)(user, (userId).toString());
-        }
+        if (!chatbotContent)
+            return res.status(400).json({ error: "no context" });
         if (!chatbot || !personality)
             return res.status(400).json({ error: "Invalid chatbot or personality" });
         // Get or create session
         const session = await (0, constants_1.getChatSession)(sessionId, chatbotId, dev, (userId).toString());
         if (!session)
             return res.status(500).json({ error: "Failed to retrieve session" });
-        // Store user's message
-        await (0, constants_1.storeUserMessage)((session._id).toString(), message, (userId).toString(), dev);
-        // Fetch last 10 messages
+        res.write(`data: ${JSON.stringify({
+            type: "meta",
+            sessionId: session._id.toString()
+        })}\n\n`);
         const recentMessages = await chatMessage_model_1.default.find({
             chatSessionId: session._id,
         })
             .sort("created_at")
-            .limit(10);
-        // Generate chatbot response
-        const chatbotReply = await getChatbotResponse(chatbot, personality, (session._id).toString(), message, recentMessages || [], (userId).toString(), additionalPrompt, `
-      // 
-       Response Format:
-        json format:
-          { 
-            "message": "Your reply goes here.", 
-          }
-      `, dev);
-        // Store chatbot's response
-        await (0, constants_1.storeBotMessage)((session._id).toString(), chatbotReply || "", (userId).toString(), dev);
-        // Respond with chatbot reply and messages
-        res.json({
-            sessionId: session._id,
-            dev,
-            response: chatbotReply,
-            messages: recentMessages?.map((msg) => ({
-                role: msg.role,
-                content: msg.content,
-            })) || [],
+            .limit(25);
+        // Store user's message
+        await (0, constants_1.storeUserMessage)((session._id).toString(), message, (userId).toString(), dev);
+        const stream = client.chat.completions.runTools({
+            model: 'gpt-4o-mini',
+            messages: [{ content: (0, constants_1.GENI_INITIALIZATION_PROMPT)(JSON.stringify(chatbotContent?.content || {}), personality._id.toString(), session._id.toString(), chatbotId, userId.toString()), role: "assistant" },
+                ...recentMessages.map((msg) => ({ role: msg.role, content: msg.content })),
+                { content: message, role: 'user' }
+            ],
+            tools: [...tools],
+            stream: true,
         });
+        let fullResponse = "";
+        for await (const chunk of stream) {
+            let content = chunk.choices?.[0]?.delta?.content;
+            console.log({ content });
+            if (content) {
+                try {
+                    const parsed = JSON.parse(content);
+                    if (parsed.message) {
+                        content = parsed.message;
+                    }
+                }
+                catch {
+                    // ignore
+                }
+                fullResponse += content;
+                res.write(`data: ${JSON.stringify({
+                    type: "chunk",
+                    content
+                })}\n\n`);
+            }
+        }
+        await (0, constants_1.storeBotMessage)(session._id.toString(), fullResponse, userId.toString(), dev);
+        res.write(`data: ${JSON.stringify({
+            type: "done"
+        })}\n\n`);
+        res.end();
     }
-    catch (error) {
-        console.error("Error handling chat:", error);
-        res
-            .status(500)
-            .json({ error: "An error occurred while processing the request" });
-    }
+    catch (err) { }
 };
 exports.handleChat = handleChat;
 const meetingTool = {
@@ -267,7 +397,7 @@ const meetingTool = {
     },
 };
 // Function to get chatbot response from OpenAI
-const getChatbotResponse = async (chatbot, personality, sessionId, message, messages, userId, additionalPrompt, responseType, dev) => {
+const getChatbotResponse = async (chatbot, personality, sessionId, message, messages, userId, content, responseType, dev) => {
     const tools = [
         {
             type: "function",
@@ -313,10 +443,13 @@ const getChatbotResponse = async (chatbot, personality, sessionId, message, mess
                 },
             },
         },
-        ...(!!additionalPrompt ? [meetingTool] : []),
+        []
+        // ...(!!additionalPrompt ? [meetingTool] : []),
     ];
-    const intialPrompt = (0, constants_1.GENI_INITIALIZATION_PROMPT)(JSON.stringify(chatbot.content), personality.prompt, sessionId, chatbot.id, userId, dev);
-    const prompt = `${intialPrompt}\n\n${!!additionalPrompt ? additionalPrompt : responseType || ""}`;
+    const intialPrompt = (0, constants_1.GENI_INITIALIZATION_PROMPT)(JSON.stringify(content), personality.prompt, sessionId, chatbot.id, userId, dev);
+    // const prompt = `${intialPrompt}\n\n${!!additionalPrompt ? additionalPrompt : responseType || ""
+    //   }`;
+    const prompt = intialPrompt;
     // @ts-ignore
     const runner = client.chat.completions.runTools({
         model: "gpt-4o",
