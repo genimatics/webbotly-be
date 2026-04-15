@@ -392,9 +392,6 @@ export const handleChat = async (req: ChatRequest, res: Response) => {
     let fullResponse = "";
     for await (const chunk of stream) {
       let content = chunk.choices?.[0]?.delta?.content;
-      console.log({ content });
-
-
       if (content) {
         try {
           const parsed = JSON.parse(content);
