@@ -9,6 +9,7 @@ import * as crawlerService from "./crawler.service"
 export const crawlWebsite = async (req: AuthRequest, res: Response) => {
     try {
         const url = req.query.url as string;
+        const mode = (req.query.mode as string) || "full";
 
         const userId = req?.user?.id;
 
@@ -27,7 +28,7 @@ export const crawlWebsite = async (req: AuthRequest, res: Response) => {
 
         const allPages = new Set<string>(); // ✅ dedupe automatically
 
-        await crawlerService.crawlWebsite(url, (batch) => {
+        await crawlerService.crawlWebsite(url, mode, (batch) => {
             try {
                 const normalizedBatch = batch.map((p) => {
                     try {

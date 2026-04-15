@@ -17,6 +17,7 @@ const envSchema = z.object({
   AWS_BUCKET_NAME: z.string(),
   AWS_SES_FROM_EMAIL: z.string().email(),
   FRONTEND_URL: z.string().url(),
+  OPENAI_API_KEY: z.string(),
 });
 
 const parsed = envSchema.safeParse(process.env);
