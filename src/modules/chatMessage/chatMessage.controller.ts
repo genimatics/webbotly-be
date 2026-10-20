@@ -327,7 +327,21 @@ export const handleChat = async (req: ChatRequest, res: Response) => {
     })}\n\n`);
 
     res.end();
-  } catch {
-    res.status(500).json({ error: "Internal server error" });
+  } catch (error) {
+    console.error("Chat request failed:", error);
+
+    if (res.writableEnded || res.destroyed) return;
+
+    if (!res.headersSent) {
+      return res.status(500).json({
+        error: "Unable to complete the response",
+      });
+    }
+
+    res.write(`data: ${JSON.stringify({
+      type: "error",
+      message: "Unable to complete the response",
+    })}\n\n`);
+    res.end();
   }
 }
