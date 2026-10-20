@@ -327,7 +327,6 @@ export const handleChat = async (req: ChatRequest, res: Response) => {
     })}\n\n`);
 
     res.end();
-  } catch (err: Error | any) {
-    res.status(500).json({ error: "Internal server error", details: err.message });
+  } catch {
   }
 }
