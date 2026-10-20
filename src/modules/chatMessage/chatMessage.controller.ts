@@ -305,10 +305,7 @@ export const handleChat = async (req: ChatRequest, res: Response) => {
           if (parsed.message) {
             content = parsed.message;
           }
-        } catch (err: Error | any) {
-          res.status(500).json({ error: "Internal server error", details: err.message });
-
-
+        } catch {
         }
         fullResponse += content;
 
